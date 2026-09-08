@@ -135,6 +135,13 @@ jobs:
                   print(feedback)
                   print()
 
+              runtime_ms = test.get("runtime_ms")
+              
+              if runtime_ms is not None:
+                  print(
+                      f"Runtime: {runtime_ms:.3f} ms"
+                  )
+                  
           print()
 
           if result["passed"]:
