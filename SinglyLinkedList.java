@@ -100,110 +100,81 @@ public class SinglyLinkedList<E extends Comparable<E>> {
     }
 
     // write your codes here
-    public void swap(){
-        //get the elements of the linked list first
-        int listSize = size();
+    public void swap()
+    {
+        List<Node<E>> nodeList = new ArrayList<>();
+        Map<Node<E>, Node<E>> prevOf = new HashMap<>();
 
-        // number of loop iteartions
-        int iterations;
-        if(listSize % 2 == 0){
-            iterations = listSize / 2;
-        } else {
-            iterations = (listSize - 1 ) / 2;
+        Node<E> prev = null;
+        Node<E> current = head;
+        while (current != null)
+        {
+            nodeList.add(current);
+            prevOf.put(current, prev);
+            prev = current;
+            current = current.next;
         }
 
-        // each iteration counts as 1 swap
-        
-        E prevMinValue = null;
-        E prevMaxValue = null;
+        List<Node<E>> sorted = new ArrayList<>(nodeList);
+        Collections.sort(sorted, (a, b) -> a.getElement().compareTo(b.getElement()));
 
-        for (int i = 0; i < iterations; i++) {
-            Node<E> minNode = null;
-            Node<E> prevOfMin = null;
-            Node<E> maxNode = null;
-            Node<E> prevOfMax = null;
-            Node<E> prevOfCurrent = null;
-            Node<E> current = head;
+        int lowIndex = 0;
+        int highIndex = sorted.size() - 1;
 
-            while (current != null) {
-                boolean inRange = (i == 0) ||
-                    (current.getElement().compareTo(prevMinValue) > 0 &&
-                    current.getElement().compareTo(prevMaxValue) < 0);
+        while (lowIndex < highIndex)
+        {
+            Node<E> minNode = sorted.get(lowIndex);
+            Node<E> maxNode = sorted.get(highIndex);
 
-                if (inRange) {
-                    if (minNode == null || current.getElement().compareTo(minNode.getElement()) < 0) {
-                        minNode = current;
-                        prevOfMin = prevOfCurrent;
-                    }
-                    if (maxNode == null || current.getElement().compareTo(maxNode.getElement()) > 0) {
-                        maxNode = current;
-                        prevOfMax = prevOfCurrent;
-                    }
-                }
-                prevOfCurrent = current;
-                current = current.next;
-            }
+            Node<E> prevOfMin = prevOf.get(minNode);
+            Node<E> prevOfMax = prevOf.get(maxNode);
+            Node<E> nextOfMin = minNode.next;
+            Node<E> nextOfMax = maxNode.next;
 
-            // swap nodes
-            if (minNode == maxNode){
-                break; 
-            }
-
-            if (minNode.next == maxNode){
-                Node<E> nextOfMax = maxNode.next;
-                if (prevOfMin == null)
-                {
-                    head = maxNode;
-                }
-                else
-                {
-                    prevOfMin.next = maxNode;
-                }
+            if (nextOfMin == maxNode)
+            {
+                if (prevOfMin == null) { head = maxNode; } else { prevOfMin.next = maxNode; }
                 maxNode.next = minNode;
                 minNode.next = nextOfMax;
+
+                prevOf.put(maxNode, prevOfMin);
+                prevOf.put(minNode, maxNode);
+                if (nextOfMax != null) { prevOf.put(nextOfMax, minNode); }
             }
-            else if (maxNode.next == minNode){
-                Node<E> nextOfMin = minNode.next;
-                if (prevOfMax == null)
-                {
-                    head = minNode;
-                }
-                else
-                {
-                    prevOfMax.next = minNode;
-                }
+            else if (nextOfMax == minNode)
+            {
+                if (prevOfMax == null) { head = minNode; } else { prevOfMax.next = minNode; }
                 minNode.next = maxNode;
                 maxNode.next = nextOfMin;
-            } else {
-                if (prevOfMin == null) {
-                    head = maxNode;
-                } else {
-                    prevOfMin.next = maxNode;
-                }
 
-                if (prevOfMax == null) {
-                    head = minNode;
-                } else {
-                    prevOfMax.next = minNode;
-                }
+                prevOf.put(minNode, prevOfMax);
+                prevOf.put(maxNode, minNode);
+                if (nextOfMin != null) { prevOf.put(nextOfMin, maxNode); }
+            }
+            else
+            {
+                if (prevOfMin == null) { head = maxNode; } else { prevOfMin.next = maxNode; }
+                if (prevOfMax == null) { head = minNode; } else { prevOfMax.next = minNode; }
 
-                Node<E> nextOfMax = maxNode.next;
-                Node<E> nextOfMin = minNode.next;
                 maxNode.next = nextOfMin;
                 minNode.next = nextOfMax;
+
+                prevOf.put(maxNode, prevOfMin);
+                prevOf.put(minNode, prevOfMax);
+                if (nextOfMin != null) { prevOf.put(nextOfMin, maxNode); }
+                if (nextOfMax != null) { prevOf.put(nextOfMax, minNode); }
             }
 
-            prevMinValue = minNode.getElement();
-            prevMaxValue = maxNode.getElement();
+            lowIndex++;
+            highIndex--;
         }
 
         Node<E> newTail = head;
-
-        while(newTail.next != null){
+        while (newTail.next != null)
+        {
             newTail = newTail.next;
         }
         tail = newTail;
     }
-   
 }
 
